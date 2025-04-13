@@ -64,7 +64,7 @@ chunks = split(docs)
 
 embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
 vectorstore = Chroma.from_documents(chunks, embedding=embeddings, collection_name="fhdw_knowledge")
-llm = ChatOpenAI(model_name="gpt-4o", temperature=0.3)
+llm = ChatOpenAI(model_name="gpt-4o", temperature=0.1)
 
 memory = ConversationBufferMemory(
     memory_key="chat_history", return_messages=True, output_key="answer"
@@ -84,7 +84,12 @@ def chat():
         return jsonify({"response": "Was möchtest du wissen? 😊"})
     try:
         result = qa({"question": user_msg, "chat_history": memory.chat_memory})
-        return jsonify({"response": result["answer"]})
+        response = result["answer"]
+
+        if len(response.split()) > 40:  # Wenn Antwort zu lang ist, kürzen
+            response = " ".join(response.split()[:40]) + "..."
+
+        return jsonify({"response": response})
     except Exception as e:
         return jsonify({"response": "Da ist leider etwas schiefgelaufen. Versuch es bitte später nochmal."})
 
