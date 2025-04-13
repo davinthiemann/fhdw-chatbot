@@ -86,7 +86,7 @@ def chat():
         result = qa({"question": user_msg, "chat_history": memory.chat_memory})
         response = result["answer"]
 
-        if len(response.split()) > 40:  # Wenn Antwort zu lang ist, kürzen
+        if len(response.split()) > 40:
             response = " ".join(response.split()[:40]) + "..."
 
         return jsonify({"response": response})
