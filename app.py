@@ -81,7 +81,7 @@ qa = ConversationalRetrievalChain.from_llm(
 def chat():
     user_msg = request.json.get("message", "").strip()
     if not user_msg:
-        return jsonify({"response": "Was möchtest du wissen? 😊"})
+        return jsonify({"response": "Was möchtest du wissen?"})
     try:
         result = qa({"question": user_msg, "chat_history": memory.chat_memory})
         response = result["answer"]
