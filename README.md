@@ -27,9 +27,6 @@ Entwicklung eines FHDW Chatbots im Rahmen von Advanced Topics in Computer Scienc
    ```
 
 2. Add .env.local file and add the openai key
-   ```sh
-   npm install
-   ```
 
 3. Build docker container
    ```sh
