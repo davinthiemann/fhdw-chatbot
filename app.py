@@ -1,3 +1,4 @@
+# Imports
 import os
 import openai
 from flask import Flask, request, jsonify
@@ -14,12 +15,14 @@ from langchain.docstore.document import Document
 from bs4 import BeautifulSoup
 import requests
 
+# Umgebungsvariablen laden
 load_dotenv(dotenv_path=".env.local")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 CORS(app)
 
+# PDFs Laden
 def load_pdfs(folder):
     docs = []
     if not os.path.isdir(folder):
@@ -30,6 +33,7 @@ def load_pdfs(folder):
             docs.extend(PyPDFLoader(path).load())
     return docs
 
+# Webseiten crawlen
 def crawl(url, depth=1, visited=None):
     visited = visited or set()
     if depth < 0 or url in visited:
@@ -51,6 +55,7 @@ def crawl(url, depth=1, visited=None):
         print(f"Fehler beim Crawlen: {url} → {e}")
         return []
 
+# Chunking
 def split(docs):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000, chunk_overlap=200, separators=["\n\n", "\n", ".", " ", ""]
@@ -62,10 +67,12 @@ web = crawl("https://www.fhdw.de", depth=1)
 docs = pdfs + web
 chunks = split(docs)
 
+# Embedding / Vektordatenbank
 embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
 vectorstore = Chroma.from_documents(chunks, embedding=embeddings, collection_name="fhdw_knowledge")
 llm = ChatOpenAI(model_name="gpt-4o", temperature=0.1)
 
+# Memory
 memory = ConversationBufferMemory(
     memory_key="chat_history", return_messages=True, output_key="answer"
 )
@@ -77,6 +84,7 @@ qa = ConversationalRetrievalChain.from_llm(
     return_source_documents=False
 )
 
+# Aufbau der Route
 @app.route("/chat", methods=["POST"])
 def chat():
     user_msg = request.json.get("message", "").strip()
